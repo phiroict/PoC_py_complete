@@ -3,7 +3,10 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo "Building"
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend.git']]])
+                docker.withRegistry("https://hub.docker.com", 'dockerhub-creds')
+                def customImage = docker.build("phiroict/k8s-test-frontend:${env.BUILD_ID}")
+                customImage.push()
             }
         }
         stage('Test') {
