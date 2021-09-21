@@ -8,7 +8,12 @@ Get the project, make sure you take the submodules with it.
 
 # Pre reqs
 
-### Install argocd
+## Minikube
+
+This PoC is based on minikube, install this first together with kubectl and argocd commandline. 
+
+
+## Install argocd
 
 ```bash
 yay -S argocd
@@ -61,7 +66,21 @@ More info at:
 https://argoproj.github.io/argo-cd/getting_started/
 ```
 
+## Jenkins setup
 
+Run the `make build` and `make run` tasks from the `/home/phiro/IdeaProjects/PoC_GitOps_Deploy/ci/jenkins/container` 
+ 
+
+Now define an agent to a machine that runs docker, for the PoC this would be the host machine on `172.17.0.1` create an ssh keypair and add the public 
+key to the `authorized_keys` file while setting up the agent with ssh, username and ssh keypair. 
+Note that the authorized_keys file needs to be in `0400` mode to have ssh read it.
+
+
+You need to have docker and sshd running on the node to have this working. 
+
+
+
+# Plan PoC
 ## diagram
 
 
