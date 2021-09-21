@@ -1,0 +1,12 @@
+[submodule "backend"]
+	path = backend
+	url = git@github.com:phiroict/PoC_py_backend.git
+[submodule "frontend"]
+	path = frontend
+	url = git@github.com:phiroict/PoC_py_frontend.git
+[submodule "infra/backend"]
+	path = infra/backend
+	url = git@github.com:phiroict/PoC_py_backend_infra.git
+[submodule "infra/frontend"]
+	path = infra/frontend
+	url = git@github.com:phiroict/PoC_py_frontend_infra.git

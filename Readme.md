@@ -6,8 +6,9 @@
 ![Diagram](docs/design_app.jpg)
 
 Steps to do:  
-- Set up example apps according to `https://www.densify.com/kubernetes-tools/kustomize`
-- Design app
+- Ok: Set up example apps according to `https://www.densify.com/kubernetes-tools/kustomize`
+- Ok: Design app
+- Create main project with submodules.
 - Set up build pipeline in Jenkins
 - Push sha to deployment set
 - 
@@ -32,3 +33,11 @@ PoC_py_backend_infra
 
 ## Frontend
 `git remote add origin git@github.com:phiroict/PoC_py_frontend_infra.git`
+
+
+## Main project
+
+git submodule add git@github.com:phiroict/PoC_py_backend.git backend
+git submodule add git@github.com:phiroict/PoC_py_frontend.git frontend
+git submodule add git@github.com:phiroict/PoC_py_backend_infra.git infra/backend
+git submodule add git@github.com:phiroict/PoC_py_frontend_infra.git infra/frontend
