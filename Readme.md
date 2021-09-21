@@ -1,5 +1,13 @@
 # Work 
 
+# Use
+
+Get the project, make sure you take the submodules with it.
+
+`git clone --recurse-submodules -j8 git@github.com:phiroict/PoC_py_complete.git`
+
+
+
 ## diagram
 
 
@@ -10,8 +18,8 @@ Steps to do:
 - Ok: Design app
 - Create main project with submodules.
 - Set up build pipeline in Jenkins
-- Push sha to deployment set
-- 
+- Push sha to infra repo
+- setup gitops to trigger the build
 
 
 # Components Apps 
