@@ -3,16 +3,19 @@ pipeline {
         registry = "phiroict/k8s-test-frontend"
         registryCredential = 'dockerhub-creds'
     }
+    parameters {
+        string(name: 'sha256var', defaultValue: '')
+    }
     agent any
     stages {
         stage('Build') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend.git']]])
                 script {
-
                     docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
                         def image = docker.build(registry + ":$BUILD_NUMBER")
-                        image.push()
+                        def sha = image.push()
+                        env.sha256var = sha
                     }
                 }
             }
@@ -24,7 +27,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo "Pushing sha to repo"
+                echo "Pushing sha to repo ${env.sha256var}"
             }
         }
     }
