@@ -32,9 +32,9 @@ pipeline {
                     ixEnd = logContent.indexOf(" ", ix)
                     sha = logContent.substring(ix, ixEnd)
                     echo "sha is ${sha} pushing this into the repo."
-                    def deploymentFile = readYAML file: "kustomize/base/02-deployment-frontend.yaml"
+                    def deploymentFile = readYaml file: "kustomize/base/02-deployment-frontend.yaml"
                     deploymentFile.spec.template.spec.containers[0].image = registry + ":${sha}"
-                    writeYAML file: "kustomize/base/02-deployment-frontend.yaml", data: deploymentFile, overwrite: true
+                    writeYaml file: "kustomize/base/02-deployment-frontend.yaml", data: deploymentFile, overwrite: true
                     withCredentials([gitUsernamePassword(credentialsId: 'ssh',
                                      gitToolName: 'git-tool')]) {
                       sh 'git commit -am "CI submit of ${BUILD_NUMBER}"'
