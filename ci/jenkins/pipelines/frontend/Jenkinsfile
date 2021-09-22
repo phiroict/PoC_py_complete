@@ -15,7 +15,7 @@ pipeline {
                         def image = docker.build(registry + ":$BUILD_NUMBER")
                         image.push()
                         VAL = sh(returnStdout: true, script: "docker pull  ${registry}:$BUILD_NUMBER")
-                        echo "Val is ${VAL}"
+                        echo "Val is ->${VAL}<-"
                     }
                 }
             }
