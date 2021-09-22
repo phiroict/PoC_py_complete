@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        registry = "https://hub.docker.com/repository/docker/phiroict"
+        registry = "phiroict/k8s-test-frontend"
         registryCredential = 'dockerhub-creds'
     }
     agent any
