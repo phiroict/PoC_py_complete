@@ -13,9 +13,7 @@ pipeline {
                     sh ("docker build -t ${registry}:$BUILD_NUMBER .")
                     docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
                         def image = docker.build(registry + ":$BUILD_NUMBER")
-                        //image.push()
-                        VAL = sh(returnStdout: true, script: "docker push ${registry}:$BUILD_NUMBER")
-                        echo "Val is ->${VAL}<-"
+                        image.push()
                     }
                 }
             }
@@ -28,6 +26,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Pushing sha to repo ${VAL}"
+                script {
+                    logContent = Jenkins.getInstance().getItemByFullName(env.JOB_NAME).getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER)).logFile.text
+                    echo "${logContent}"
+                }
             }
         }
     }
