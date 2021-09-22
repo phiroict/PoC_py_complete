@@ -15,7 +15,7 @@ pipeline {
                     docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
                         def image = docker.build(registry + ":$BUILD_NUMBER")
                         def sha = image.push()
-                        echo ${env.sha256var}
+                        echo "${env.sha256var}"
                         env.sha256var = sha
                     }
                 }
