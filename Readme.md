@@ -78,6 +78,18 @@ Note that the authorized_keys file needs to be in `0400` mode to have ssh read i
 
 You need to have docker and sshd running on the node to have this working. 
 
+### Permissions
+
+In the scriptApproval screen add these approvals: 
+```text
+method groovy.lang.GroovyObject invokeMethod java.lang.String java.lang.Object
+method hudson.model.Job getBuildByNumber int
+method hudson.model.Run getLogFile
+method jenkins.model.Jenkins getItemByFullName java.lang.String
+staticMethod jenkins.model.Jenkins getInstance
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getText java.io.File
+```
+
 
 
 # Plan PoC

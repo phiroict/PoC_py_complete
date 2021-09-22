@@ -27,7 +27,11 @@ pipeline {
             steps {
                 script {
                     logContent = Jenkins.getInstance().getItemByFullName(env.JOB_NAME).getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER)).logFile.text
-                    echo "${logContent}"
+                    ix = logContent.indexOf("sha256:") + 7
+                    ixEnd = logContent.indexOf(" ", ix)
+                    sha = logContent[ix:ixEnd]
+                    echo "sha is ${sha}"
+
                 }
             }
         }
