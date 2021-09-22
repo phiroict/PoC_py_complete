@@ -11,7 +11,7 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend.git']]])
                 script {
                     sh ("docker build -t ${registry}:$BUILD_NUMBER .")
-                    def sha256 = sh(returnStdout: true, script: "docker push ${registry}:${BUILD_NUMBER}")
+                    sha256 = sh returnStdout: true, script: "docker push ${registry}:${BUILD_NUMBER}"
                     echo "Value of the return is ${sha256}"
 //                     docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
 //                         def image = docker.build(registry + ":$BUILD_NUMBER")
