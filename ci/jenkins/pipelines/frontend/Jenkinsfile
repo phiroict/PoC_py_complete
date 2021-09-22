@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo "Pushing sha to repo"
+                echo "Pushing sha to repo ${VAL}"
             }
         }
     }
