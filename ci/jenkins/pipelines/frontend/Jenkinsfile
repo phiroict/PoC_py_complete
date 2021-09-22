@@ -25,7 +25,6 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo "Pushing sha to repo ${VAL}"
                 script {
                     logContent = Jenkins.getInstance().getItemByFullName(env.JOB_NAME).getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER)).logFile.text
                     echo "${logContent}"
