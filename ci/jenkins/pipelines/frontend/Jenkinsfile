@@ -13,8 +13,8 @@ pipeline {
                     sh ("docker build -t ${registry}:$BUILD_NUMBER .")
                     docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
                         def image = docker.build(registry + ":$BUILD_NUMBER")
-                        image.push()
-                        VAL = sh(returnStdout: true, script: "docker pull  ${registry}:$BUILD_NUMBER")
+                        //image.push()
+                        VAL = sh(returnStdout: true, script: "docker push ${registry}:$BUILD_NUMBER")
                         echo "Val is ->${VAL}<-"
                     }
                 }
