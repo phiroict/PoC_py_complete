@@ -1,10 +1,24 @@
-# Work 
+# PoC Jenkins - ArcoCD integration 
 
-# Use
+This PoC handles with the integration of Jenkins with argoCD in conjunction by order of infra git repo updates. 
+
+Confused? You won't be after this PoC! [Cue music](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=video&cd=&cad=rja&uact=8&ved=2ahUKEwimydTsvZPzAhWaf30KHU-fCLwQtwJ6BAgHEAM&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D0BHQT3Omqtw&usg=AOvVaw3WgRyttiZzPO7aB40GuhsW)!
+
+
+
+# Setup
 
 Get the project, make sure you take the submodules with it.
 
 `git clone --recurse-submodules -j8 git@github.com:phiroict/PoC_py_complete.git`
+
+The components are: 
+- Backend, Frontend : Two Apps + Dockerfile build file 
+- Ci : Jenkins container and utils
+- infa : Two projects, Kustomize projects for backend and frontend
+- Make file that builds most the apps (there is a separate in the ci folder)
+
+Run `run init` to create some of the folders we need later. 
 
 # Pre reqs
 
@@ -14,12 +28,12 @@ This PoC is based on minikube, install this first together with kubectl and argo
 
 
 ## Install argocd
-
+Commandline (archlinux) : 
 ```bash
 yay -S argocd
 ```
 
-Install the kubernetes set
+Install the kubernetes argocd set
 
 ```bash
 kubectl create namespace argocd
@@ -31,7 +45,7 @@ Create loadbalancer and export the ports
 ```bash
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 ```
-or port forwarding:
+or do port forwarding:
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:443
@@ -59,21 +73,38 @@ or by the forwarded ports
 ```bash
 argocd login localhost:8080
 ```
+And open the site: 
+```bash
+firefox http://localhost:8080
+```
 
-
-More info at:
+More info about argocd at:
 ```bash
 https://argoproj.github.io/argo-cd/getting_started/
 ```
 
 ## Jenkins setup
 
-Run the `make build` and `make run` tasks from the `/home/phiro/IdeaProjects/PoC_GitOps_Deploy/ci/jenkins/container` 
- 
+Run the `make build` and `make run` tasks from the `ci/jenkins/container` 
 
-Now define an agent to a machine that runs docker, for the PoC this would be the host machine on `172.17.0.1` create an ssh keypair and add the public 
+The process ends with a temporary password for the `admin` user. Log in and install the recommended plugins, set the account password   
+Note that this container uses a volume to store the settings so you need to do the setup once until you delete the volume.  
+
+
+Now define an agent to a machine that runs docker, for the PoC this would be the host machine on `172.17.0.1` create an ssh keypair and add the public,
+this omits the need to run docker in docker. It is also bad form to run any pipeline on the Jenkins master. (Though I assume they 
+have an opinion to connect up to the docker host to run the agents, c'est la vie)  
+
 key to the `authorized_keys` file while setting up the agent with ssh, username and ssh keypair. 
 Note that the authorized_keys file needs to be in `0400` mode to have ssh read it.
+As agent folder select the `ci/jenkins/agent-smith` as this one is already excluded from storing in git. 
+
+
+On start install the following plugins (We need them for the pipelines)
+```bash
+jenkins-plugin-cli --plugins basic-branch-build-strategies bitbucket build-name-setter checkmarx cobertura copyartifact docker-workflow htmlpublisher http_request job-dsl kubernetes kubernetes-cli kubernetes-credentials performance sonar ssh-credentials templating-engine ws-cleanup xunit pipeline-utility-steps
+```
+Or install these by the GUI plugins installer, whatever serves you best. 
 
 
 You need to have docker and sshd running on the node to have this working. 
@@ -90,7 +121,17 @@ staticMethod jenkins.model.Jenkins getInstance
 staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getText java.io.File
 ```
 
+### Create pipelines. 
 
+There are two pipelines defined in the `ci/jenkins/pipelines/backend` and `ci/jenkins/pipelines/frontend`
+In jenkins create the two pipelines. 
+Like this: 
+![Pipeline configuration](docs/pipeline-jenkins-dsl.png)
+
+Keep all the default values, you may add a description, we add scheduling later. 
+
+Do the same for the other one but replace the Pipeline Template Path to `ci/jenkins/pipelines/frontend/Jenkinsfile` 
+Name the first one `CI-backend` and the other `CI-frontend`. The rest of the docs refers to these names so if you choose another name, remember and map these names.  
 
 # Plan PoC
 ## diagram
@@ -102,12 +143,12 @@ Steps to do:
 - Ok: Set up example apps according to `https://www.densify.com/kubernetes-tools/kustomize`
 - Ok: Design app
 - Ok: Create main project with submodules.
-- Set up pipeline in make
-  - Push sha to infra repo
-- setup gitops to trigger the build
-- Build jenkins image
-- Build jenkins pipeline
-- End to end test
+- Ok: Set up pipeline in make
+  - Ok : Push sha to infra repo
+- In progress: Setup gitops to trigger the build
+- Ok: Build jenkins image
+- Ok: Build jenkins pipeline
+- TODO: End to end test
 
 
 # Components Apps 

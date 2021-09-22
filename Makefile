@@ -1,9 +1,10 @@
 init:
 	cd frontend && mkdir -p kustomize kustomize/base kustomize/overlays kustomize/overlays/dev kustomize/overlays/nonprod kustomize/overlays/prod
 	cd backend && mkdir -p kustomize kustomize/base kustomize/overlays kustomize/overlays/dev kustomize/overlays/nonprod kustomize/overlays/prod
+	cd ci/jenkins && mkdir -p agent-smith
 workspace_init:
 	sudo systemctl start docker
-	sude systemctl start sshd
+	sudo systemctl start sshd
 check_frontend:
 	cd frontend && docker run --rm -i hadolint/hadolint < Dockerfile
 check_backend:
