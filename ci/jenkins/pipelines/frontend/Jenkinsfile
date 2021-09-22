@@ -35,11 +35,8 @@ pipeline {
                     def deploymentFile = readYaml file: "kustomize/base/02-deployment-frontend.yaml"
                     deploymentFile.spec.template.spec.containers[0].image = registry + ":${sha}"
                     writeYaml file: "kustomize/base/02-deployment-frontend.yaml", data: deploymentFile, overwrite: true
-                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh',
-                                     keyFileVariable: '')]) {
-                      sh 'git commit -am "CI submit of ${BUILD_NUMBER}"'
-                      sh 'git push origin HEAD:main'
-                    }
+                    sh 'git commit -am "CI submit of ${BUILD_NUMBER}"'
+                    sh 'git push origin HEAD:main'
                 }
             }
         }
