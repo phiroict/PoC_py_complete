@@ -104,12 +104,12 @@ Now create the argocd applications
 We need the infra projects for these: 
 
 ```bash
-argocd app create cd-backend-prod --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/prod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo
-argocd app create cd-frontend-prod --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/prod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo
+argocd app create cd-backend-prod --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/prod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-prod
+argocd app create cd-frontend-prod --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/prod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-prod
 argocd app create cd-backend-nonprod --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/nonprod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-nonprod
 argocd app create cd-frontend-nonprod --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/nonprod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-nonprod
-argocd app create cd-backend-dev --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/dev --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-dev
-argocd app create cd-frontend-dev --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/dev --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-dev
+argocd app create cd-backend-dev --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/dev --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-dev --sync-policy auto
+argocd app create cd-frontend-dev --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/dev --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-dev --sync-policy auto
 
 
 ```
@@ -176,10 +176,10 @@ Steps to do:
 - Ok: Create main project with submodules.
 - Ok: Set up pipeline in make
   - Ok : Push sha to infra repo
-- In progress: Setup gitops to trigger the build
+- Ok: Setup gitops to trigger the build
 - Ok: Build jenkins image
 - Ok: Build jenkins pipeline
-- TODO: End to end test
+- In progress: End to end test
 
 
 # Components Apps 
@@ -211,11 +211,29 @@ git submodule add git@github.com:phiroict/PoC_py_backend_infra.git infra/backend
 git submodule add git@github.com:phiroict/PoC_py_frontend_infra.git infra/frontend
 
 
+# Test and access 
+
+Export the services with: 
+
+```bash
+minikube tunnel
+```
+
+Exports (from the services page)
+- dev: http://10.98.20.103:5000/
+- nonprod: http://10.110.11.224:5000/
+- prod: http://10.99.133.247:5000/
+
 # Cleanup
 
 ## Delete gitops
 
 ```bash
-argocd app delete cd-frontend-prod --cascade
-argocd app delete cd-backend-prod --cascade
+argocd app delete cd-frontend-prod --cascade -y
+argocd app delete cd-backend-prod --cascade -y
+argocd app delete cd-frontend-nonprod --cascade -y
+argocd app delete cd-backend-nonprod --cascade -y
+argocd app delete cd-frontend-dev --cascade -y
+argocd app delete cd-backend-dev --cascade -y
+
 ```
