@@ -35,7 +35,7 @@ pipeline {
                     def deploymentFile = readYaml file: "kustomize/base/01-deployment-backend.yaml"
                     deploymentFile.spec.template.spec.containers[0].image = registry + "@sha256:${sha}"
                     writeYaml file: "kustomize/base/01-deployment-backend.yaml", data: deploymentFile, overwrite: true
-                    sh 'eval `ssh-agent` && echo "radagast" | ssh-add /home/phiro/.ssh/id_rsa && git commit -am "CI submit of ${BUILD_NUMBER}" && git push origin HEAD:main'
+                    sh 'eval `ssh-agent` && ssh-add /home/phiro/.ssh/id_rsa_poc_jenkins && git commit -am "CI submit of ${BUILD_NUMBER}" && git push origin HEAD:main'
                 }
             }
         }

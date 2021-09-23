@@ -25,7 +25,15 @@ Run `run init` to create some of the folders we need later.
 ## Minikube
 
 This PoC is based on minikube, install this first together with kubectl and argocd commandline. 
+Install and then start with: 
 
+```bash
+minikube start
+```
+Get the dashboard with: 
+```bash
+minikube dashboard
+```
 
 ## Install argocd
 Commandline (archlinux) : 
@@ -81,6 +89,24 @@ firefox http://localhost:8080
 More info about argocd at:
 ```bash
 https://argoproj.github.io/argo-cd/getting_started/
+```
+
+## Setting up argocd
+
+First add the repos
+
+```bash
+argocd repo add git@github.com:phiroict/PoC_py_backend_infra.git --ssh-private-key-path /home/phiro/.ssh/id_rsa_poc_jenkins
+argocd repo add git@github.com:phiroict/PoC_py_frontend_infra.git --ssh-private-key-path /home/phiro/.ssh/id_rsa_poc_jenkins
+```
+
+Now create the argocd applications 
+We need the infra projects for these: 
+
+```bash
+argocd app create cd-backend --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/base --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo
+
+argocd app create cd-frontend --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/base --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo
 ```
 
 ## Jenkins setup
