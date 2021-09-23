@@ -104,9 +104,14 @@ Now create the argocd applications
 We need the infra projects for these: 
 
 ```bash
-argocd app create cd-backend --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/base --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo
+argocd app create cd-backend-prod --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/prod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo
+argocd app create cd-frontend-prod --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/prod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo
+argocd app create cd-backend-nonprod --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/nonprod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-nonprod
+argocd app create cd-frontend-nonprod --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/nonprod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-nonprod
+argocd app create cd-backend-dev --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/dev --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-dev
+argocd app create cd-frontend-dev --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/dev --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-dev
 
-argocd app create cd-frontend --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/base --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo
+
 ```
 
 ## Jenkins setup
@@ -204,3 +209,13 @@ git submodule add git@github.com:phiroict/PoC_py_backend.git backend
 git submodule add git@github.com:phiroict/PoC_py_frontend.git frontend
 git submodule add git@github.com:phiroict/PoC_py_backend_infra.git infra/backend
 git submodule add git@github.com:phiroict/PoC_py_frontend_infra.git infra/frontend
+
+
+# Cleanup
+
+## Delete gitops
+
+```bash
+argocd app delete cd-frontend-prod --cascade
+argocd app delete cd-backend-prod --cascade
+```
