@@ -1,0 +1,43 @@
+pipeline {
+    environment {
+        registry = "phiroict/k8s-test-frontend"
+        registryCredential = 'dockerhub-creds'
+    }
+
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend.git']]])
+                script {
+                    sh ("docker build -t ${registry}:$BUILD_NUMBER .")
+                    docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
+                        def image = docker.build(registry + ":$BUILD_NUMBER")
+                        image.push()
+                    }
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                echo "Testing"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend_infra.git']]])
+                script {
+                    logContent = Jenkins.getInstance().getItemByFullName(env.JOB_NAME).getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER)).logFile.text
+                    ix = logContent.indexOf("sha256:") + 7
+                    ixEnd = logContent.indexOf(" ", ix)
+                    sha = logContent.substring(ix, ixEnd)
+                    echo "sha is ${sha} pushing this into the repo."
+                    def deploymentFile = readYaml file: "kustomize/overlays/dev/02-deployment-frontend.yaml"
+                    deploymentFile.spec.template.spec.containers[0].image = registry + "@sha256:${sha}"
+                    writeYaml file: "kustomize/overlays/dev/02-deployment-frontend.yaml", data: deploymentFile, overwrite: true
+                    sh 'eval `ssh-agent` && ssh-add /home/phiro/.ssh/id_rsa_poc_jenkins && git commit -am "CI submit of ${BUILD_NUMBER}" && git push origin HEAD:main'
+                }
+            }
+        }
+    }
+}
