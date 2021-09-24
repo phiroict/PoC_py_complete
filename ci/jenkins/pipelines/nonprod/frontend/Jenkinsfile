@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/nonprod']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend.git']]])
                 script {
                     sh ("docker build -t ${registry}:$BUILD_NUMBER .")
                     docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
