@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend.git']]])
                 script {
                     sh ("docker build -t ${registry}:$BUILD_NUMBER .")
                     docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend_infra.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/dev']], extensions: [], userRemoteConfigs: [[credentialsId: 'ssh', url: 'git@github.com:phiroict/PoC_py_frontend_infra.git']]])
                 script {
                     logContent = Jenkins.getInstance().getItemByFullName(env.JOB_NAME).getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER)).logFile.text
                     ix = logContent.indexOf("sha256:") + 7
