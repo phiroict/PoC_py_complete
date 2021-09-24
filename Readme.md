@@ -20,7 +20,37 @@ The components are:
 
 Run `run init` to create some of the folders we need later. 
 
+## Quick step
+Assumes all the prereqs set up; 
+
+```bash
+# Start minishift
+minikube start
+
+# In separate shell, start dashboard
+minikube dashboard
+
+# In separateshell, forward arcocd port
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+# Get the admin password
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+# Login on argocd
+argocd login localhost:8080
+
+# Open browser
+firefox http://localhost:8080
+
+# start Jenkins 
+cd ci/jenkins/container && make run 
+
+# login 
+firefox http://localhost:8081
+```
+
 # Pre reqs
+
 
 ## Minikube
 
@@ -34,6 +64,7 @@ Get the dashboard with:
 ```bash
 minikube dashboard
 ```
+
 
 ## Install argocd
 Commandline (archlinux) : 
