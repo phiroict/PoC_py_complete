@@ -23,7 +23,12 @@ Run `run init` to create some of the folders we need later.
 ## Quick step
 Assumes all the prereqs set up; 
 
+ 
+
 ```bash
+# Start the host services
+make workspace_init
+
 # Start minishift
 minikube start
 
