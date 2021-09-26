@@ -255,7 +255,7 @@ Export the services with:
 minikube tunnel
 ```
 
-Exports (from the services page)
+Exports (from the services page) Note that your ip addresses will be different, you can get them from the services page)
 - dev: http://10.98.20.103:5000/
 - nonprod: http://10.110.11.224:5000/
 - prod: http://10.99.133.247:5000/
