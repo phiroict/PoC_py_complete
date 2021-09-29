@@ -4,7 +4,19 @@ This PoC handles with the integration of Jenkins with argoCD in conjunction by o
 
 Confused? You won't be after this PoC! [Cue music](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=video&cd=&cad=rja&uact=8&ved=2ahUKEwimydTsvZPzAhWaf30KHU-fCLwQtwJ6BAgHEAM&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D0BHQT3Omqtw&usg=AOvVaw3WgRyttiZzPO7aB40GuhsW)!
 
+# Axioms
 
+- The example is based on the idea of GitOps, where infrastructure and code are held in separate git repos. Some items like PRs have been omitted from the PoC. This 
+Poc aims to showcase some modern CI and CD tools on Kubernetes. No doubt there are other ways of doing this. 
+
+# Stack
+- Minikube - a very simple one node k8s cluster that runs on your local VM stack
+- ArgoCD - A GitOps tool that runs on k8s, this will run the CD part. 
+- Make - That builds most of the environment
+- Jenkins - Whose pipelines run the CI part
+- Python - A very simple front and back app for the showcase. 
+- kubectl - Kubernetes command line for interacting with the system, installed together with minikube and configured when running it.
+- Kustomize - a wrapper around environment separation for kubernetes manifests. 
 
 # Setup
 
@@ -18,7 +30,7 @@ The components are:
 - infa : Two projects, Kustomize projects for backend and frontend
 - Make file that builds most the apps (there is a separate in the ci folder)
 
-Run `run init` to create some of the folders we need later. 
+Run `run init` to create some folders we need later. 
 
 
 # Pre reqs
@@ -26,7 +38,8 @@ Run `run init` to create some of the folders we need later.
 
 ## Minikube
 
-This PoC is based on minikube, install this first together with kubectl and argocd commandline. 
+This PoC is based on minikube, install this first together with kubectl and argocd commandline.
+See [here](https://minikube.sigs.k8s.io/docs/start/)  
 Install and then start with: 
 
 ```bash
@@ -34,12 +47,21 @@ minikube start
 ```
 Get the dashboard with: 
 ```bash
-minikube dashboard
+nohup minikube dashboard& 
 ```
+## Kustomize 
 
+Install with 
+
+```bash
+sudo yay -S kustomize
+```
+or look [here](https://kustomize.io/)
+
+kubectl also has an inbuild kustomize app, called with `kubectl kustomize -k <manifest>` but it is old and apparently no longer really supported.
 
 ## Install argocd
-Commandline (archlinux) : 
+Commandline (archlinux) or look at this [site](https://argoproj.github.io/argo-cd/getting_started/) for instructions for your environment: 
 ```bash
 yay -S argocd
 ```
@@ -84,9 +106,15 @@ or by the forwarded ports
 ```bash
 argocd login localhost:8080
 ```
+or in one go, note it is insecure as we did no install the certificates.
+
+```bash
+argocd login localhost:8080 --insecure --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
+```
+
 And open the site: 
 ```bash
-firefox http://localhost:8080
+nohup firefox http://localhost:8080& 
 ```
 
 More info about argocd at:
@@ -96,7 +124,19 @@ https://argoproj.github.io/argo-cd/getting_started/
 
 ## Setting up argocd
 
-First add the repos
+Select a repo and upload a ssh key to the git repo if you do not have these. Do not use a passphrase as argocd does not support that. 
+```bash
+ssh-keygen -t ecdsa -b 521
+
+# If your git provider does not support the eliptical curve keys, use the older rsa one
+
+ssh-keygen -t rsa -b 4096
+```
+
+First add the repos (replace with yours if you do not want to use the PoC ones, do not forget to point to your private key)
+
+
+
 
 ```bash
 argocd repo add git@github.com:phiroict/PoC_py_backend_infra.git --ssh-private-key-path /home/phiro/.ssh/id_rsa_poc_jenkins
@@ -113,7 +153,6 @@ argocd app create cd-backend-nonprod --repo git@github.com:phiroict/PoC_py_backe
 argocd app create cd-frontend-nonprod --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/nonprod --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-nonprod
 argocd app create cd-backend-dev --repo git@github.com:phiroict/PoC_py_backend_infra.git --path kustomize/overlays/dev --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-dev --sync-policy auto
 argocd app create cd-frontend-dev --repo git@github.com:phiroict/PoC_py_frontend_infra.git --path kustomize/overlays/dev --dest-server https://kubernetes.default.svc --dest-namespace gitops-demo-dev --sync-policy auto
-
 
 ```
 
@@ -182,7 +221,7 @@ Steps to do:
 - Ok: Setup gitops to trigger the build
 - Ok: Build jenkins image
 - Ok: Build jenkins pipeline
-- In progress: End to end test
+- Ok: End to end test
 
 
 # Starting and stopping stack after setup
