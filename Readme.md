@@ -20,39 +20,6 @@ The components are:
 
 Run `run init` to create some of the folders we need later. 
 
-## Quick step
-Assumes all the prereqs set up; 
-
- 
-
-```bash
-# Start the host services
-make workspace_init
-
-# Start minishift
-minikube start
-
-# In separate shell, start dashboard
-minikube dashboard
-
-# In separateshell, forward arcocd port
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-
-# Get the admin password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-
-# Login on argocd
-argocd login localhost:8080
-
-# Open browser
-firefox http://localhost:8080
-
-# start Jenkins 
-cd ci/jenkins/container && make run 
-
-# login 
-firefox http://localhost:8081
-```
 
 # Pre reqs
 
@@ -216,6 +183,57 @@ Steps to do:
 - Ok: Build jenkins image
 - Ok: Build jenkins pipeline
 - In progress: End to end test
+
+
+# Starting and stopping stack after setup
+## Quick reload
+When all is setup these are the steps to start the stack.
+Assumes all the prereqs set up;
+```bash
+make start_stack
+```
+
+And then to log in on argocd commandline
+```bash
+make argo_login
+```
+Stop the stack with
+
+```bash
+make stop_stack
+```
+
+The make file executes these steps:
+
+
+```bash
+# Start the host services
+make workspace_init
+
+# Start minishift
+minikube start
+
+# Start dashboard
+nohup minikube dashboard & 
+
+# In separateshell, forward arcocd port
+nohup kubectl port-forward svc/argocd-server -n argocd 8080:443&
+
+# Get the admin password
+ARGOCD_PASS=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+
+# Login on argocd
+argocd login localhost:8080 --insecure --username admin --password $ARGOCD_PASS 
+
+# Open browser
+nohup firefox http://localhost:8080&
+
+# start Jenkins 
+cd ci/jenkins/container && make run 
+
+# login 
+nohup firefox http://localhost:8081& 
+```
 
 
 # Components Apps 
