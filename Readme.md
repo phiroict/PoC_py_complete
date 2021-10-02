@@ -101,7 +101,7 @@ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}
 or do port forwarding when using minikube:
 
 ```bash
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+kubectl port-forward svc/argocd-server -n argocd 8082:443
 ```
 
 Now get the secret for login
@@ -125,17 +125,17 @@ argocd login 10.109.77.114
 
 or by the forwarded ports 
 ```bash
-argocd login localhost:8080
+argocd login localhost:8082
 ```
 or in one go, note it is insecure as we did no install the certificates.
 
 ```bash
-argocd login localhost:8080 --insecure --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
+argocd login localhost:8082 --insecure --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
 ```
 
 And open the site: 
 ```bash
-nohup firefox http://localhost:8080& 
+nohup firefox http://localhost:8082& 
 ```
 
 More info about argocd at:
@@ -321,7 +321,7 @@ Exports (from the services page) Note that your ip addresses will be different, 
 ## Delete gitops projects
 
 
-Note that the cascade flag will instruct argocd to delete all components it has deleted, this will also delete other components 
+Note that the cascade flag will instruct argocd to delete all components it has created, this will also delete other components 
 that are installed as children so in real life you'd not use this way. Only when you truly want to get rid of all components and all 
 adjacent components. 
 
