@@ -1,10 +1,11 @@
 # PoC Jenkins - K8s - ArcoCD integration 
 
 ## Audience
-Audience: Developers, Ops, and DeVOps 
-Technical knowledge level: Intermediate
-Technical knowledge required : Git, CMake, Jenkins, Jenkins DSL, Docker.
-Technical knowledge optional : Kubernetes, ArgoCD, Python, GitOps
+Audience: Developers, Ops, and DeVOps  
+Technical knowledge level: Intermediate  
+Technical knowledge required : Git, CMake, Jenkins, Jenkins DSL, Docker.  
+Technical knowledge optional : Kubernetes, ArgoCD, Python, GitOps  
+
 
 ## Preface
 The project is a PoC and a Tutorial for setting up Kubernetes with a Jenkins CI pipeline and ArgoCD as CD solution.
