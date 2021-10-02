@@ -18,8 +18,8 @@ start_stack: workspace_init
 	nohup minikube dashboard &
 	echo "Wait a minute to get minikube to initialize"
 	sleep 150
-	nohup kubectl port-forward svc/argocd-server -n argocd 8080:443&
-	nohup firefox http://localhost:8080&
+	nohup kubectl port-forward svc/argocd-server -n argocd 8082:443&
+	nohup firefox http://localhost:8082&
 	cd ci/jenkins/container && make run
 	nohup firefox http://localhost:8081&
 stop_stack:

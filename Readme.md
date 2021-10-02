@@ -8,7 +8,7 @@ The high level flow is
 
 The application is split over two repos, one (`app repo`) that contains the source code and the container build instructions, 
 the other (`infra repo`) has the infrastructure
-manifests for k8s in the Kustomise format. 
+manifests for k8s in the Kustomize format. 
 The CI picks up the `app repo` and builds the image. The image sha256 is then pushed into the `infra repo` that is monitored by the 
 CD that will apply the changes on the k8s cluster. 
 
@@ -35,15 +35,18 @@ The idea is that a branch in the app code translates to a deploy in the kubernet
 
 # Setup
 
+## Source of this PoC
 Get the project, make sure you take the submodules with it.
 
 `git clone --recurse-submodules -j8 git@github.com:phiroict/PoC_py_complete.git`
 
+## Components used
 The components are: 
-- Backend, Frontend : Two Apps + Dockerfile build file 
-- Ci : Jenkins container and utils
-- infa : Two projects, Kustomize projects for backend and frontend
-- Make file that builds most the apps (there is a separate in the ci folder)
+- GIT: Backend, Frontend : Two Apps + Dockerfile build file 
+- CI : Jenkins container and utils
+- GIT: infra : Two projects, Kustomize projects for backend and frontend
+- Builder: Make file that builds most the apps (there is a separate in the ci folder)
+- Docker: To build the image
 
 Run `run init` to create some folders we need later. 
 
@@ -53,7 +56,9 @@ Run `run init` to create some folders we need later.
 
 ## Minikube
 
-This PoC is based on minikube, install this first together with kubectl and argocd commandline.
+This PoC is based on minikube, install this first together with kubectl and argocd commandline. If you have another k8s cluster 
+onprem of in the cloud, you would need to point to that cluster and skip the minikube part. 
+
 See [here](https://minikube.sigs.k8s.io/docs/start/)  
 Install and then start with: 
 
@@ -81,7 +86,7 @@ Commandline (archlinux) or look at this [site](https://argoproj.github.io/argo-c
 yay -S argocd
 ```
 
-Install the kubernetes argocd set
+Install the kubernetes argocd set (Note that your kubectl should point to the target cluster, this is done for you when using minikube)
 
 ```bash
 kubectl create namespace argocd
@@ -93,7 +98,7 @@ Create loadbalancer and export the ports
 ```bash
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 ```
-or do port forwarding:
+or do port forwarding when using minikube:
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:443
@@ -105,6 +110,7 @@ Now get the secret for login
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 Get the server ips (for instance):
+
 ```text
 kubectl get services -n argocd
 
@@ -227,16 +233,6 @@ Name the first one `CI-backend` and the other `CI-frontend`. The rest of the doc
 
 ![Diagram](docs/design_app.jpg)
 
-Steps to do:  
-- Ok: Set up example apps according to `https://www.densify.com/kubernetes-tools/kustomize`
-- Ok: Design app
-- Ok: Create main project with submodules.
-- Ok: Set up pipeline in make
-  - Ok : Push sha to infra repo
-- Ok: Setup gitops to trigger the build
-- Ok: Build jenkins image
-- Ok: Build jenkins pipeline
-- Ok: End to end test
 
 
 # Starting and stopping stack after setup
@@ -257,7 +253,7 @@ Stop the stack with
 make stop_stack
 ```
 
-The make file executes these steps:
+The make `start_stack` action executes these steps:
 
 
 ```bash
@@ -271,16 +267,10 @@ minikube start
 nohup minikube dashboard & 
 
 # In separateshell, forward arcocd port
-nohup kubectl port-forward svc/argocd-server -n argocd 8080:443&
+nohup kubectl port-forward svc/argocd-server -n argocd 8082:443&
 
-# Get the admin password
-ARGOCD_PASS=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-
-# Login on argocd
-argocd login localhost:8080 --insecure --username admin --password $ARGOCD_PASS 
-
-# Open browser
-nohup firefox http://localhost:8080&
+# Open browser for argocd
+nohup firefox http://localhost:8082&
 
 # start Jenkins 
 cd ci/jenkins/container && make run 
@@ -290,7 +280,7 @@ nohup firefox http://localhost:8081&
 ```
 
 
-# Components Apps 
+# Components Apps (git)
 
 ## Frontend 
 
@@ -311,14 +301,6 @@ PoC_py_backend_infra
 `git remote add origin git@github.com:phiroict/PoC_py_frontend_infra.git`
 
 
-## Main project
-
-git submodule add git@github.com:phiroict/PoC_py_backend.git backend
-git submodule add git@github.com:phiroict/PoC_py_frontend.git frontend
-git submodule add git@github.com:phiroict/PoC_py_backend_infra.git infra/backend
-git submodule add git@github.com:phiroict/PoC_py_frontend_infra.git infra/frontend
-
-
 # Test and access 
 
 Export the services with: 
@@ -327,6 +309,8 @@ Export the services with:
 minikube tunnel
 ```
 
+Or through the loadbalancer when you have your own k8s cluster.  
+
 Exports (from the services page) Note that your ip addresses will be different, you can get them from the services page)
 - dev: http://10.98.20.103:5000/
 - nonprod: http://10.110.11.224:5000/
@@ -334,7 +318,12 @@ Exports (from the services page) Note that your ip addresses will be different, 
 
 # Cleanup
 
-## Delete gitops
+## Delete gitops projects
+
+
+Note that the cascade flag will instruct argocd to delete all components it has deleted, this will also delete other components 
+that are installed as children so in real life you'd not use this way. Only when you truly want to get rid of all components and all 
+adjacent components. 
 
 ```bash
 argocd app delete cd-frontend-prod --cascade -y
@@ -343,5 +332,4 @@ argocd app delete cd-frontend-nonprod --cascade -y
 argocd app delete cd-backend-nonprod --cascade -y
 argocd app delete cd-frontend-dev --cascade -y
 argocd app delete cd-backend-dev --cascade -y
-
 ```
