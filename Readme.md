@@ -1,19 +1,34 @@
-# PoC Jenkins - ArcoCD integration 
+# PoC Jenkins - K8s - ArcoCD integration 
 
-This PoC handles with the integration of Jenkins with argoCD in conjunction by order of infra git repo updates. 
+The project is a PoC and a Tutorial for setting up Kubernetes with a Jenkins CI pipeline and ArgoCD as CD solution.
+It will go into deploying namespaces by environment in k8s and assure the ancillary components. 
+
+The high level flow is
+![High_Level_Flow](docs/High%20level%20flow.jpg)
+
+The application is split over two repos, one (`app repo`) that contains the source code and the container build instructions, 
+the other (`infra repo`) has the infrastructure
+manifests for k8s in the Kustomise format. 
+The CI picks up the `app repo` and builds the image. The image sha256 is then pushed into the `infra repo` that is monitored by the 
+CD that will apply the changes on the k8s cluster. 
+
+
+This PoC handles with the integration of Jenkins with argoCD in conjunction by order of infra git repo updates on a k8s cluster. 
+
 
 Confused? You won't be after this PoC! [Cue music](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=video&cd=&cad=rja&uact=8&ved=2ahUKEwimydTsvZPzAhWaf30KHU-fCLwQtwJ6BAgHEAM&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D0BHQT3Omqtw&usg=AOvVaw3WgRyttiZzPO7aB40GuhsW)!
 
 # Axioms
 
 - The example is based on the idea of GitOps, where infrastructure and code are held in separate git repos. Some items like PRs have been omitted from the PoC. This 
-Poc aims to showcase some modern CI and CD tools on Kubernetes. No doubt there are other ways of doing this. 
+project aims to showcase some modern CI and CD tools on Kubernetes. No doubt there are other ways of doing this, this is one of them. 
+The idea is that a branch in the app code translates to a deploy in the kubernetes cluster. So the `app repo` dev branch will trigger a `dev` pipeline that will deploy to a `dev` namespace in the cluster.
 
 # Stack
-- Minikube - a very simple one node k8s cluster that runs on your local VM stack
-- ArgoCD - A GitOps tool that runs on k8s, this will run the CD part. 
-- Make - That builds most of the environment
-- Jenkins - Whose pipelines run the CI part
+- Minikube - a very simple one node k8s cluster that runs on your local VM stack, it will be the `Kubernetes` part.
+- ArgoCD - A GitOps tool that runs on k8s, this will run the `CD` part. 
+- Make - That builds most of the environment for this PoC
+- Jenkins - Whose pipelines run the `CI` part
 - Python - A very simple front and back app for the showcase. 
 - kubectl - Kubernetes command line for interacting with the system, installed together with minikube and configured when running it.
 - Kustomize - a wrapper around environment separation for kubernetes manifests. 
