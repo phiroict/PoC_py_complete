@@ -1,5 +1,12 @@
 # PoC Jenkins - K8s - ArcoCD integration 
 
+## Audience
+Audience: Developers, Ops, and DeVOps 
+Technical knowledge level: Intermediate
+Technical knowledge required : Git, CMake, Jenkins, Jenkins DSL, Docker.
+Technical knowledge optional : Kubernetes, ArgoCD, Python, GitOps
+
+## Preface
 The project is a PoC and a Tutorial for setting up Kubernetes with a Jenkins CI pipeline and ArgoCD as CD solution.
 It will go into deploying namespaces by environment in k8s and assure the ancillary components. 
 
@@ -39,6 +46,7 @@ The idea is that a branch in the app code translates to a deploy in the kubernet
 Get the project, make sure you take the submodules with it.
 
 `git clone --recurse-submodules -j8 git@github.com:phiroict/PoC_py_complete.git`
+If you want to make any changes you need to fork the repo and its submodules.  
 
 ## Components used
 The components are: 
@@ -81,6 +89,8 @@ or look [here](https://kustomize.io/)
 kubectl also has an inbuild kustomize app, called with `kubectl kustomize -k <manifest>` but it is old and apparently no longer really supported.
 
 ## Install argocd
+Make sure the minikube vm is started by `minikube start` 
+
 Commandline (archlinux) or look at this [site](https://argoproj.github.io/argo-cd/getting_started/) for instructions for your environment: 
 ```bash
 yay -S argocd
@@ -145,7 +155,9 @@ https://argoproj.github.io/argo-cd/getting_started/
 
 ## Setting up argocd
 
-Select a repo and upload a ssh key to the git repo if you do not have these. Do not use a passphrase as argocd does not support that. 
+Select a repo and upload a public ssh key to the git repo if you do not have these. Do not use a passphrase as argocd does not support this at this moment (20211003). 
+In the UI you can register repos, but you can also created the app with a reference to the private key. (See below) 
+
 ```bash
 ssh-keygen -t ecdsa -b 521
 
@@ -154,17 +166,15 @@ ssh-keygen -t ecdsa -b 521
 ssh-keygen -t rsa -b 4096
 ```
 
-First add the repos (replace with yours if you do not want to use the PoC ones, do not forget to point to your private key)
+First add the repos, you need to fork the repos and place in your own repository ( do not forget to re-point to your private key, the commands as shown will *not* work)
 
-
-
-
+Example:  
 ```bash
 argocd repo add git@github.com:phiroict/PoC_py_backend_infra.git --ssh-private-key-path /home/phiro/.ssh/id_rsa_poc_jenkins
 argocd repo add git@github.com:phiroict/PoC_py_frontend_infra.git --ssh-private-key-path /home/phiro/.ssh/id_rsa_poc_jenkins
 ```
 
-Now create the argocd applications 
+Now create the argocd applications, again, replace the --repo part with your forked applications.
 We need the infra projects for these: 
 
 ```bash
