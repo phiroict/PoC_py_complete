@@ -33,6 +33,8 @@ The idea is that a branch in the app code translates to a deploy in the kubernet
 - kubectl - Kubernetes command line for interacting with the system, installed together with minikube and configured when running it.
 - Kustomize - a wrapper around environment separation for kubernetes manifests. 
 
+This PoC runs on Arch Linux (2021-10-03 version) it should run with few conversions on other Linux brands.
+
 # Setup
 
 ## Source of this PoC
@@ -203,6 +205,21 @@ Or install these by the GUI plugins installer, whatever serves you best.
 
 You need to have docker and sshd running on the node to have this working. 
 
+### User configuration
+
+Create a new user: `sys_builder`  
+Password: `5kzaZULBdUm3tKj`
+
+In the gui, create new token: For instance `11313a4fc9b29fb708e9ada937abdb7916` (yours will be different) 
+
+### Build user 
+In the makefile you can git commit, push, and then trigger the jenkins build (Replace token with your own)
+
+```bash
+JENKINGS_BUILD_TOKEN="11313a4fc9b29fb708e9ada937abdb7916" COMMIT_TEXT="Demo backend deploy" make commit_backend
+
+```
+
 ### Permissions
 
 In the scriptApproval screen add these approvals: 
@@ -217,10 +234,17 @@ staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getText java.io.Fi
 
 ### Create pipelines. 
 
-There are two pipelines defined in the `ci/jenkins/pipelines/backend` and `ci/jenkins/pipelines/frontend`
+There are two pipelines defined in the `ci/jenkins/pipelines/backend` and `ci/jenkins/pipelines/frontend` for each environment, dev, nonprod, prod.
+In total 6 pipelines. 
+
+These pipelines are defined in the the `ci/jenkins/pipelines` 
+
+
 In jenkins create the two pipelines. 
 Like this: 
-![Pipeline configuration](docs/pipeline-jenkins-dsl.png)
+![Pipeline configuration](docs/pipeline-jenkins-dsl_v2.png)
+
+You create a job for each of the six pipelines, differing only in the `Pipeline Configuration Path` and the `Pipeline Template Path` 
 
 Keep all the default values, you may add a description, we add scheduling later. 
 
