@@ -1,5 +1,13 @@
 # PoC Jenkins - K8s - ArcoCD integration 
 
+## Audience
+Audience: Developers, Ops, and DeVOps  
+Technical knowledge level: Intermediate  
+Technical knowledge required : Git, CMake, Jenkins, Jenkins DSL, Docker.  
+Technical knowledge optional : Kubernetes, ArgoCD, Python, GitOps  
+
+
+## Preface
 The project is a PoC and a Tutorial for setting up Kubernetes with a Jenkins CI pipeline and ArgoCD as CD solution.
 It will go into deploying namespaces by environment in k8s and assure the ancillary components. 
 
@@ -41,6 +49,7 @@ This PoC runs on Arch Linux (2021-10-03 version) it should run with few conversi
 Get the project, make sure you take the submodules with it.
 
 `git clone --recurse-submodules -j8 git@github.com:phiroict/PoC_py_complete.git`
+If you want to make any changes you need to fork the repo and its submodules.  
 
 ## Components used
 The components are: 
@@ -83,6 +92,8 @@ or look [here](https://kustomize.io/)
 kubectl also has an inbuild kustomize app, called with `kubectl kustomize -k <manifest>` but it is old and apparently no longer really supported.
 
 ## Install argocd
+Make sure the minikube vm is started by `minikube start` 
+
 Commandline (archlinux) or look at this [site](https://argoproj.github.io/argo-cd/getting_started/) for instructions for your environment: 
 ```bash
 yay -S argocd
@@ -103,7 +114,7 @@ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}
 or do port forwarding when using minikube:
 
 ```bash
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+kubectl port-forward svc/argocd-server -n argocd 8082:443
 ```
 
 Now get the secret for login
@@ -127,17 +138,17 @@ argocd login 10.109.77.114
 
 or by the forwarded ports 
 ```bash
-argocd login localhost:8080
+argocd login localhost:8082
 ```
 or in one go, note it is insecure as we did no install the certificates.
 
 ```bash
-argocd login localhost:8080 --insecure --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
+argocd login localhost:8082 --insecure --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
 ```
 
 And open the site: 
 ```bash
-nohup firefox http://localhost:8080& 
+nohup firefox http://localhost:8082& 
 ```
 
 More info about argocd at:
@@ -147,7 +158,9 @@ https://argoproj.github.io/argo-cd/getting_started/
 
 ## Setting up argocd
 
-Select a repo and upload a ssh key to the git repo if you do not have these. Do not use a passphrase as argocd does not support that. 
+Select a repo and upload a public ssh key to the git repo if you do not have these. Do not use a passphrase as argocd does not support this at this moment (20211003). 
+In the UI you can register repos, but you can also created the app with a reference to the private key. (See below) 
+
 ```bash
 ssh-keygen -t ecdsa -b 521
 
@@ -156,17 +169,15 @@ ssh-keygen -t ecdsa -b 521
 ssh-keygen -t rsa -b 4096
 ```
 
-First add the repos (replace with yours if you do not want to use the PoC ones, do not forget to point to your private key)
+First add the repos, you need to fork the repos and place in your own repository ( do not forget to re-point to your private key, the commands as shown will *not* work)
 
-
-
-
+Example:  
 ```bash
 argocd repo add git@github.com:phiroict/PoC_py_backend_infra.git --ssh-private-key-path /home/phiro/.ssh/id_rsa_poc_jenkins
 argocd repo add git@github.com:phiroict/PoC_py_frontend_infra.git --ssh-private-key-path /home/phiro/.ssh/id_rsa_poc_jenkins
 ```
 
-Now create the argocd applications 
+Now create the argocd applications, again, replace the --repo part with your forked applications.
 We need the infra projects for these: 
 
 ```bash
@@ -345,7 +356,7 @@ Exports (from the services page) Note that your ip addresses will be different, 
 ## Delete gitops projects
 
 
-Note that the cascade flag will instruct argocd to delete all components it has deleted, this will also delete other components 
+Note that the cascade flag will instruct argocd to delete all components it has created, this will also delete other components 
 that are installed as children so in real life you'd not use this way. Only when you truly want to get rid of all components and all 
 adjacent components. 
 
