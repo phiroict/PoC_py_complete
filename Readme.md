@@ -46,8 +46,9 @@ This PoC runs on Arch Linux (2021-10-03 version) it should run with few conversi
 # Setup
 
 ## Source of this PoC
-Get the project, make sure you take the submodules with it.
 
+
+Get the project, make sure you take the submodules with it.
 `git clone --recurse-submodules -j8 git@github.com:phiroict/PoC_py_complete.git`
 If you want to make any changes you need to fork the repo and its submodules.  
 
@@ -58,6 +59,7 @@ The components are:
 - GIT: infra : Two projects, Kustomize projects for backend and frontend
 - Builder: Make file that builds most the apps (there is a separate in the ci folder)
 - Docker: To build the image
+- Kustomize (4.4.0) : To build environmentalized kubernetes scripts. 
 
 Run `run init` to create some folders we need later. 
 
@@ -164,7 +166,7 @@ In the UI you can register repos, but you can also created the app with a refere
 ```bash
 ssh-keygen -t ecdsa -b 521
 
-# If your git provider does not support the eliptical curve keys, use the older rsa one
+# If your git provider does not support the elliptical curve keys, use the older rsa one
 
 ssh-keygen -t rsa -b 4096
 ```
@@ -197,14 +199,19 @@ Run the `make build` and `make run` tasks from the `ci/jenkins/container`
 The process ends with a temporary password for the `admin` user. Log in and install the recommended plugins, set the account password   
 Note that this container uses a volume to store the settings so you need to do the setup once until you delete the volume.  
 
+ 
 
 Now define an agent to a machine that runs docker, for the PoC this would be the host machine on `172.17.0.1` create an ssh keypair and add the public,
 this omits the need to run docker in docker. It is also bad form to run any pipeline on the Jenkins master. (Though I assume they 
-have an opinion to connect up to the docker host to run the agents, c'est la vie)  
+have an opinion to connect up to the docker host to run the agents, c'est la vie)
+Create a credentials in the Maintenance / Credentials / dropdown under Jenkins store, globals. (It is oddly hidden there) 
 
 key to the `authorized_keys` file while setting up the agent with ssh, username and ssh keypair. 
+
 Note that the authorized_keys file needs to be in `0400` mode to have ssh read it.
 As agent folder select the `ci/jenkins/agent-smith` as this one is already excluded from storing in git. 
+
+Now there is an issue with Jenkins that the .ssh folder is not created in the /var/jenkins_home/ folder, I did that manually not knowing if this were a fluke. 
 
 
 On start install the following plugins (We need them for the pipelines)
@@ -244,7 +251,9 @@ staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getText java.io.Fi
 ```
 
 ### Create pipelines. 
+Begin with setting up the credentials: 
 
+You need a dockerhub name and credential for this, so place this in jenkins under `dockerhub-creds` do the same with your git ssh credentials in `ssh`
 There are two pipelines defined in the `ci/jenkins/pipelines/backend` and `ci/jenkins/pipelines/frontend` for each environment, dev, nonprod, prod.
 In total 6 pipelines. 
 
@@ -261,6 +270,9 @@ Keep all the default values, you may add a description, we add scheduling later.
 
 Do the same for the other one but replace the Pipeline Template Path to `ci/jenkins/pipelines/frontend/Jenkinsfile` 
 Name the first one `CI-backend` and the other `CI-frontend`. The rest of the docs refers to these names so if you choose another name, remember and map these names.  
+
+
+
 
 # Plan PoC
 ## diagram
