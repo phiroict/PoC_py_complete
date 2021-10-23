@@ -1,1 +1,5 @@
 ci/jenkins/agent-smith
+*.tfstate*
+.terraform
+.terraform.lock.hcl
+*.plan

@@ -45,6 +45,16 @@ This PoC runs on Arch Linux (2021-10-03 version) it should run with few conversi
 
 # Setup
 
+## Local 
+
+The machine you run this from is expected to have 16 GiB RAM and run a Linux / MacOs OS. 
+
+## AWS 
+
+There is a tutorial to build the development environment on AWS. 
+See `dev-env/aws` read the readme there. 
+
+
 ## Source of this PoC
 
 

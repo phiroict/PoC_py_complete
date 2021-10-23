@@ -1,0 +1,48 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+  - name : Install graphical shell
+    apt:
+      name: lubuntu-desktop
+      state: present
+      update_cache: yes
+  - name: Install vnc requirements
+    apt:
+      name: "{{ item }}"
+      state: present
+    loop:
+    - tightvncserver
+    - gnome-panel
+    - gnome-settings-daemon
+    - metacity
+    - nautilus
+    - gnome-terminal
+    - docker
+    - curl
+    - apt-transport-https
+    - firefox
+  - name: Install minikube
+    get_url:
+      url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+      dest: /usr/bin/minikube
+      mode: 0755
+  - name: Install kubectl
+    get_url:
+      url: https://storage.googleapis.com/kubernetes-release/release/v1.22.2/bin/linux/amd64/kubectl
+      dest: /usr/bin/kubectl
+      mode: 0755
+  - name: Install kustomize
+    unarchive:
+      src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v4.4.0/kustomize_v4.4.0_linux_amd64.tar.gz
+      dest: /usr/bin/kustomize
+    ignore_errors: yes
+  - name: Install argocd
+    get_url:
+      url: https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+      dest: /usr/bin/argocd
+      mode: 0755
+
+
+
+

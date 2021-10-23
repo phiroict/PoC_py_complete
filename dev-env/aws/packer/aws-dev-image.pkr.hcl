@@ -34,4 +34,26 @@ build {
   sources = [
     "source.amazon-ebs.ubuntu"
   ]
+  provisioner "shell" {
+    inline = [
+      "echo Connected via SSM at '${build.User}@${build.Host}:${build.Port}'",
+      "sudo apt-get update && sudo apt-get upgrade -y",
+      "sudo apt-get update && sudo apt-get install ansible -y ",
+      "mkdir -p /home/ubuntu/.vnc"
+    ]
+  }
+  provisioner "file" {
+    source = "xstartup"
+    destination = "/home/ubuntu/.vnc/xstartup"
+  }
+  provisioner "file" {
+    source = "installer.yaml"
+    destination = "/home/ubuntu/installer.yaml"
+  }
+  provisioner "shell" {
+    inline = [
+      "ansible-playbook installer.yaml --connection=local"
+    ]
+  }
+
 }

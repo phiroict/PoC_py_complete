@@ -33,3 +33,13 @@ Now create the vm with
 ```bash
 make build_pre_image
 ```
+This will return an ami image under your account for instance : `ami-0d2dd60832d9d3923`
+This would be the one to instantiate and run from. 
+
+
+To cleanup you delete the stack with: 
+```bash
+make infra_teardown
+```
+
+AMI generated is: `ami-0eeffff38b12dee7e`
