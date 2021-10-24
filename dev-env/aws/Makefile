@@ -10,3 +10,4 @@ build_dev_machine:
 	cd "terraform-provision" && terraform init &&   aws-vault exec home -- terraform plan -out plan.plan && aws-vault exec home -- terraform apply plan.plan
 delete_dev_machine:
 	cd "terraform-provision" && aws-vault exec home -- terraform destroy
+all: infra_pre_build build_pre_image build_dev_machine

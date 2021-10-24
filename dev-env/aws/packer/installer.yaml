@@ -23,6 +23,9 @@
     - apt-transport-https
     - firefox
     - net-tools
+    - gnome-session-flashback
+    - ubuntu-settings
+    - xterm
 
   - name: Install docker
     snap:

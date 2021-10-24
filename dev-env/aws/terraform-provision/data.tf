@@ -1,7 +1,7 @@
 data "aws_vpc" "data_vpc" {
   filter {
     name = "tag:Name"
-    values = ["dev-vpc"]
+    values = ["poc-dev-vpc"]
   }
 }
 
@@ -9,7 +9,7 @@ data "aws_subnet" "data_subnet" {
   filter {
 
     name = "tag:Name"
-    values = ["Main subnet"]
+    values = ["poc-dev-mainsubnet"]
   }
 }
 

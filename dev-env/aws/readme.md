@@ -28,6 +28,18 @@ provision with a display server and the tools needed to be installed.
 
 # Installation 
 
+## Set up AWS
+In AWS create a user that has admin rights over EC2. Create a key and secret. 
+Add these to the `home` profile in aws-vault 
+```bash
+aws-vault add home 
+```
+Follow the instructions adding the key and secret and select region `ap-southeast-2` 
+Now you can log in with aws account in the below make scripts. If you create a different profile, change the names in 
+the Makefiles to reflect this. 
+
+## Build pipeline
+
 From the `dev-env/aws` folder run 
 
 ```bash
@@ -68,3 +80,28 @@ make delete_dev_machine
 ```
 Note that deleting the machine will remove all storage attached to it so make sure all your work is either in git 
 or on an attached storage device that is not managed by terraform. 
+
+
+# Connect 
+
+Connect with the ssh string that the process returned for instance `ssh -i ~/.ssh/id_rsa -L 5902:127.0.0.1:5901 ubuntu@13.211.153.70` (Ip address and key location may be different) 
+And then start the vnc server from within the remote session.
+```bash
+vncserver -geometry 1920x1040 :1
+```
+
+It will ask you to create a password for the session, make up a hard one (it is per session) and then logon with a vnc client on to the ip address 127.0.0.1 and the port (5902)
+For instance: 
+```bash
+vncviewer 127.0.0.1:5902 
+```
+
+Why localhost? We have tunneled the vnc session over ssh to encrypt it and to avoid having to expose the vnc port to the internet. VNC is not encrypted by nature and the SSL certificate
+route is a pain in the butt. So we let ssh work for us. 
+
+Warning: Do not replace `127.0.0.1` with `localhost` as that is not the same and will not work. 
+
+
+
+
+

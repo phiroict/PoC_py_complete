@@ -3,7 +3,7 @@ resource "aws_vpc" "dev" {
   instance_tenancy = "default"
 
   tags = {
-    Name = "dev-vpc"
+    Name = "poc-dev-vpc"
   }
 }
 
@@ -12,7 +12,7 @@ resource "aws_subnet" "main" {
   cidr_block = "10.1.0.0/26"
 
   tags = {
-    Name = "Main subnet"
+    Name = "poc-dev-mainsubnet"
   }
 }
 
@@ -20,7 +20,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.dev.id
 
   tags = {
-    Name = "main"
+    Name = "poc-dev-gw"
   }
 }
 

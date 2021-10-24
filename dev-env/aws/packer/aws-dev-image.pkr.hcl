@@ -17,6 +17,7 @@ source "amazon-ebs" "ubuntu" {
   subnet_id     = var.aws_subnet
   vpc_id        = var.aws_vpc
   associate_public_ip_address = true
+  force_deregister = true
   launch_block_device_mappings   {
     device_name = "/dev/sda1"
     volume_size = 50
@@ -57,7 +58,8 @@ build {
   }
   provisioner "shell" {
     inline = [
-      "ansible-playbook installer.yaml --connection=local"
+      "ansible-playbook installer.yaml --connection=local",
+      "chmod +x /home/ubuntu/.vnc/xstartup"
     ]
   }
 

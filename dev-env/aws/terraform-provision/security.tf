@@ -3,20 +3,14 @@ resource "aws_security_group" "vnc_ssh_sg" {
   description = "Open up vnc and ssh ports"
   vpc_id = data.aws_vpc.data_vpc.id
 
-  ingress {
-      description      = "VNC ingress"
-      from_port        = 5900
-      to_port          = 5900
-      protocol         = "tcp"
-      cidr_blocks      = ["${data.http.origin_ip.body}/32"]
 
-    }
+
   ingress {
       description      = "SSH ingress"
       from_port        = 22
       to_port          = 22
       protocol         = "tcp"
-      cidr_blocks      = ["${data.http.origin_ip.body}/32"]
+      cidr_blocks      = ["${trimspace(data.http.origin_ip.body)}/32"]
     }
 
 
