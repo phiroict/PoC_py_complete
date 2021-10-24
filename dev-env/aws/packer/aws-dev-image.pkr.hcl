@@ -17,6 +17,11 @@ source "amazon-ebs" "ubuntu" {
   subnet_id     = var.aws_subnet
   vpc_id        = var.aws_vpc
   associate_public_ip_address = true
+  launch_block_device_mappings   {
+    device_name = "/dev/sda1"
+    volume_size = 50
+    volume_type = "gp2"
+  }
   source_ami_filter {
     filters = {
       name                = "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*"

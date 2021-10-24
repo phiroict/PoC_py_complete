@@ -22,6 +22,21 @@
     - curl
     - apt-transport-https
     - firefox
+    - net-tools
+
+  - name: Install docker
+    snap:
+      name: "{{ item.name }}"
+      classic: "{{ item.classic }}"
+      state: present
+    loop:
+    - {name: docker, classic: no}
+    - {name: code, classic: yes}
+
+
+
+  - name: Allow the ubuntu user access to the docker socket.
+    shell: setfacl -m user:ubuntu:rw /var/run/docker.sock
   - name: Install minikube
     get_url:
       url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
@@ -34,7 +49,7 @@
       mode: 0755
   - name: Install kustomize
     unarchive:
-      src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v4.4.0/kustomize_v4.4.0_linux_amd64.tar.gz
+      remote_src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v4.4.0/kustomize_v4.4.0_linux_amd64.tar.gz
       dest: /usr/bin/kustomize
     ignore_errors: yes
   - name: Install argocd
