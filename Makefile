@@ -11,6 +11,8 @@ workspace_init:
 	sudo systemctl start docker
 	sudo systemctl start sshd
 	git config --global push.default current
+	sudo pacman -S kustomize argocd
+
 check_frontend:
 	cd frontend && docker run --rm -i hadolint/hadolint < Dockerfile
 check_backend:
@@ -28,11 +30,13 @@ start_stack: workspace_init
 	nohup minikube dashboard &
 	echo "Wait a minute to get minikube to initialize"
 	sleep 150
-	nohup kubectl port-forward svc/argocd-server -n argocd 8082:443&
+	-kubectl create namespace argocd
+	kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+	-nohup kubectl port-forward svc/argocd-server -n argocd 8082:443&
 	nohup firefox http://localhost:8082&
 	cd ci/jenkins/container && make run
 	nohup firefox http://localhost:8081&
 stop_stack:
 	minikube stop
 argo_login:
-	argocd login localhost:8080 --insecure --username admin --password $(shell kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
+	argocd login localhost:8082 --insecure --username admin --password $(shell kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)

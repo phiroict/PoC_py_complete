@@ -8,6 +8,8 @@ run:
 	@sleep 60
 	-docker exec -it jenkins-poc cat /var/jenkins_home/secrets/initialAdminPassword
 	firefox http://localhost:8081
+initial_password:
+	docker exec jenkins-poc cat /var/jenkins_home/secrets/initialAdminPassword
 reset:
 	-docker rm -f jenkins-poc
 	-docker volume rm jenkins_home
